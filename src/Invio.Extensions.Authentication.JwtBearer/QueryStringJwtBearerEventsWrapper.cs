@@ -35,14 +35,14 @@ namespace Invio.Extensions.Authentication.JwtBearer {
         ///   This is the default specified in RFC 6750.
         ///   <see href="https://tools.ietf.org/html/rfc6750#section-2.3" />
         /// </remarks>
-        public static String DefaultQueryStringKey { get; } = "access_token";
+        public static String DefaultQueryStringParameterName { get; } = "access_token";
 
         /// <summary>
         ///   This is the actual query string parameter that will be sought in all
-        ///   requests to perform authentication. If found, it's value is used for
-        ///   authentication purposes.
+        ///   requests to perform authentication. If found, its value is used for
+        ///   processing bearer authentication for this web request.
         /// </summary>
-        public string QueryStringKey { get; }
+        public string QueryStringParameterName { get; }
 
         /// <summary>
         ///   Wraps an instance of <see cref="JwtBearerEvents" /> with a behavior
@@ -56,46 +56,46 @@ namespace Invio.Extensions.Authentication.JwtBearer {
         ///   Thrown when <paramref name="inner" /> is null.
         /// </exception>
         public QueryStringJwtBearerEventsWrapper(JwtBearerEvents inner) :
-            this(inner, DefaultQueryStringKey) {}
+            this(inner, DefaultQueryStringParameterName) {}
 
         /// <summary>
         ///   Wraps an instance of <see cref="JwtBearerEvents" /> with a behavior
         ///   checks for a token in the query string with a name specified in the
-        ///   <paramref name="queryStringKey" /> parameter.
+        ///   <paramref name="queryStringParameterName" /> parameter.
         /// </summary>
         /// <param name="inner">
         ///   A base <see cref="JwtBearerEvents" /> implementation that will gain
         ///   this additional query string inspection behavior.
         /// </param>
-        /// <param name="queryStringKey">
+        /// <param name="queryStringParameterName">
         ///   The name of the query string parameter that will be sought from requests
         ///   in order to extract a token.
         /// </param>
         /// <exception cref="ArgumentNullException">
         ///   Thrown when <paramref name="inner" /> or
-        ///   <paramref name="queryStringKey" /> is null.
+        ///   <paramref name="queryStringParameterName" /> is null.
         /// </exception>
         /// <exception cref="ArgumentException">
-        ///   Thrown when <paramref name="queryStringKey" /> is an invalid name
+        ///   Thrown when <paramref name="queryStringParameterName" /> is an invalid name
         ///   for a query string parameter.
         /// </exception>
-        public QueryStringJwtBearerEventsWrapper(JwtBearerEvents inner, string queryStringKey) :
+        public QueryStringJwtBearerEventsWrapper(JwtBearerEvents inner, string queryStringParameterName) :
             base(inner) {
 
-            if (queryStringKey == null) {
-                throw new ArgumentNullException(nameof(queryStringKey));
-            } else if (String.IsNullOrWhiteSpace(queryStringKey)) {
+            if (queryStringParameterName == null) {
+                throw new ArgumentNullException(nameof(queryStringParameterName));
+            } else if (String.IsNullOrWhiteSpace(queryStringParameterName)) {
                 throw new ArgumentException(
-                    $"The '{nameof(queryStringKey)}' cannot be null or whitespace.",
-                    nameof(queryStringKey)
+                    $"The '{nameof(queryStringParameterName)}' cannot be null or whitespace.",
+                    nameof(queryStringParameterName)
                 );
             }
 
-            this.QueryStringKey = queryStringKey;
+            this.QueryStringParameterName = queryStringParameterName;
         }
 
         /// <summary>
-        ///   Checks the web request for the <see cref="QueryStringKey" /> in
+        ///   Checks the web request for the <see cref="QueryStringParameterName" /> in
         ///   the request's query string. If it is found, it fetches the token
         ///   and sets it on the provided <see cref="MessageReceivedContext" />.
         /// </summary>
@@ -114,15 +114,15 @@ namespace Invio.Extensions.Authentication.JwtBearer {
 
             StringValues values;
 
-            if (!context.Request.Query.TryGetValue(this.QueryStringKey, out values)) {
+            if (!context.Request.Query.TryGetValue(this.QueryStringParameterName, out values)) {
                 return base.MessageReceived(context);
             }
 
             if (values.Count > 1) {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 context.Fail(
-                    $"Only one '{this.QueryStringKey}' query string parameter can be " +
-                    $"defined. However, {values.Count:N0} were included in the request."
+                    $"Only one '{this.QueryStringParameterName}' query string parameter can " +
+                    $"be defined. However, {values.Count:N0} were included in the request."
                 );
 
                 return base.MessageReceived(context);
@@ -133,8 +133,8 @@ namespace Invio.Extensions.Authentication.JwtBearer {
             if (String.IsNullOrWhiteSpace(token)) {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 context.Fail(
-                    $"The '{this.QueryStringKey}' query string parameter was defined, " +
-                    $"but a value to represent the token was not included."
+                    $"The '{this.QueryStringParameterName}' query string parameter was " +
+                    $"defined, but a value to represent the token was not included."
                 );
 
                 return base.MessageReceived(context);

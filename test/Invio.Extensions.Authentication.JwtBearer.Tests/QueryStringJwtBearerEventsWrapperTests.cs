@@ -14,7 +14,7 @@ namespace Invio.Extensions.Authentication.JwtBearer {
     public sealed class QueryStringJwtBearerEventsWrapperTests : JwtBearerEventsWrapperBaseTests {
 
         [Fact]
-        public void Constructor_NoCustomQueryStringKey_NullInner() {
+        public void Constructor_DefaultQueryStringParameterName_NullInner() {
 
             // Arrange
 
@@ -32,7 +32,7 @@ namespace Invio.Extensions.Authentication.JwtBearer {
         }
 
         [Fact]
-        public void Constructor_WithCustomQueryStringKey_NullInner() {
+        public void Constructor_CustomQueryStringParameterName_NullInner() {
 
             // Arrange
 
@@ -41,7 +41,7 @@ namespace Invio.Extensions.Authentication.JwtBearer {
             // Act
 
             var exception = Record.Exception(
-                () => new QueryStringJwtBearerEventsWrapper(inner, "myCustomQueryStringKey")
+                () => new QueryStringJwtBearerEventsWrapper(inner, "myCustomQueryStringParameterName")
             );
 
             // Assert
@@ -50,7 +50,7 @@ namespace Invio.Extensions.Authentication.JwtBearer {
         }
 
         [Fact]
-        public void Constructor_WithCustomQueryStringKey_NullCustomQueryStringKey() {
+        public void Constructor_CustomQueryStringParameterName_NullParameterName() {
 
             // Arrange
 
@@ -70,8 +70,8 @@ namespace Invio.Extensions.Authentication.JwtBearer {
         [Theory]
         [InlineData("")]
         [InlineData(" ")]
-        public void Constructor_WithCustomQueryStringKey_InvalidCustomQueryStringKey(
-            string queryStringKey) {
+        public void Constructor_WithCustomQueryStringParameterName_InvalidParameterName(
+            string queryStringParameterName) {
 
             // Arrange
 
@@ -80,7 +80,7 @@ namespace Invio.Extensions.Authentication.JwtBearer {
             // Act
 
             var exception = Record.Exception(
-                () => new QueryStringJwtBearerEventsWrapper(inner, queryStringKey)
+                () => new QueryStringJwtBearerEventsWrapper(inner, queryStringParameterName)
             );
 
             // Assert
@@ -88,8 +88,8 @@ namespace Invio.Extensions.Authentication.JwtBearer {
             Assert.IsType<ArgumentException>(exception);
 
             Assert.Equal(
-                $"The 'queryStringKey' cannot be null or whitespace." +
-                Environment.NewLine + "Parameter name: queryStringKey",
+                $"The 'queryStringParameterName' cannot be null or whitespace." +
+                Environment.NewLine + "Parameter name: queryStringParameterName",
                 exception.Message
             );
         }
@@ -117,7 +117,7 @@ namespace Invio.Extensions.Authentication.JwtBearer {
         [InlineData(null)]
         [InlineData("?")]
         [InlineData("?another_token=foo")]
-        public async Task MessageReceived_NoQueryStringKey(String queryString) {
+        public async Task MessageReceived_NoQueryStringParameterName(String queryString) {
 
             // Arrange
 
@@ -148,7 +148,7 @@ namespace Invio.Extensions.Authentication.JwtBearer {
             var inner = Mock.Of<JwtBearerEvents>();
             var events = this.CreateQueryStringJwtBearerEvents(inner);
             var context = new DefaultMessageReceivedContext();
-            var queryString = $"?{events.QueryStringKey}{value}";
+            var queryString = $"?{events.QueryStringParameterName}{value}";
 
             context.Request.QueryString = new QueryString(queryString);
 
@@ -162,7 +162,7 @@ namespace Invio.Extensions.Authentication.JwtBearer {
 
             Assert.NotNull(context.Result);
             Assert.Equal(
-                $"The '{events.QueryStringKey}' query string parameter was " +
+                $"The '{events.QueryStringParameterName}' query string parameter was " +
                 $"defined, but a value to represent the token was not included.",
                 context.Result.Failure?.Message
             );
@@ -179,7 +179,7 @@ namespace Invio.Extensions.Authentication.JwtBearer {
             var inner = Mock.Of<JwtBearerEvents>();
             var events = this.CreateQueryStringJwtBearerEvents(inner);
             var context = new DefaultMessageReceivedContext();
-            var queryString = $"?{events.QueryStringKey}=foo&{events.QueryStringKey}=bar";
+            var queryString = $"?{events.QueryStringParameterName}=foo&{events.QueryStringParameterName}=bar";
 
             context.Request.QueryString = new QueryString(queryString);
 
@@ -193,7 +193,7 @@ namespace Invio.Extensions.Authentication.JwtBearer {
 
             Assert.NotNull(context.Result?.Failure);
             Assert.Equal(
-                $"Only one '{events.QueryStringKey}' query string parameter " +
+                $"Only one '{events.QueryStringParameterName}' query string parameter " +
                 $"can be defined. However, 2 were included in the request.",
                 context.Result.Failure.Message
             );
@@ -213,7 +213,7 @@ namespace Invio.Extensions.Authentication.JwtBearer {
 
             const string token = "foo";
             var queryString =
-                $"?{QueryStringJwtBearerEventsWrapper.DefaultQueryStringKey}={token}";
+                $"?{QueryStringJwtBearerEventsWrapper.DefaultQueryStringParameterName}={token}";
 
             context.Request.QueryString = new QueryString(queryString);
 
@@ -232,16 +232,16 @@ namespace Invio.Extensions.Authentication.JwtBearer {
         [InlineData("bearer")]
         [InlineData("id-token")]
         [InlineData("with space")]
-        public async Task MessageReceived_ValidCustomToken(string customQueryStringKey) {
+        public async Task MessageReceived_ValidCustomToken(string customQueryStringParameterName) {
 
             // Arrange
 
             var inner = Mock.Of<JwtBearerEvents>();
-            var events = new QueryStringJwtBearerEventsWrapper(inner, customQueryStringKey);
+            var events = new QueryStringJwtBearerEventsWrapper(inner, customQueryStringParameterName);
             var context = new DefaultMessageReceivedContext();
 
             const string token = "foo";
-            var queryString = $"?{customQueryStringKey}={token}";
+            var queryString = $"?{customQueryStringParameterName}={token}";
 
             context.Request.QueryString = new QueryString(queryString);
 
