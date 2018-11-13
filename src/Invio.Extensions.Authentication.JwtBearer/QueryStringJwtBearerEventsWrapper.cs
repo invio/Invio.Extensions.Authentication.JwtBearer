@@ -31,7 +31,11 @@ namespace Invio.Extensions.Authentication.JwtBearer {
         ///   sought before the 'Authorization' header is parsed using the 'Bearer'
         ///   authentication scheme.
         /// </summary>
-        public static String DefaultQueryStringKey { get; } = "bearer";
+        /// <remarks>
+        ///   This is the default specified in RFC 6750.
+        ///   <see href="https://tools.ietf.org/html/rfc6750#section-2.3" />
+        /// </remarks>
+        public static String DefaultQueryStringKey { get; } = "access_token";
 
         /// <summary>
         ///   This is the actual query string parameter that will be sought in all
