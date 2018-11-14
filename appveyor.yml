@@ -31,4 +31,4 @@ deploy:
     secure: AtF8rrNg8ifhOqr2zyheRR8a0OSzG/EkKqa1cYBJw54gRkn/atiUhX9+s5qt9vg7
   on:
     branch: master
-    appveyor_repo_tag: true
+    APPVEYOR_REPO_TAG: true
