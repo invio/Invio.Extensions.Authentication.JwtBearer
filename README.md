@@ -1,5 +1,9 @@
 # Invio.Extensions.Authentication.JwtBearer
 
+[![Appveyor](https://ci.appveyor.com/api/projects/status/vg0xqyrtv6fjnrd5/branch/master?svg=true)](https://ci.appveyor.com/project/invio/invio-extensions-authentication-jwtbearer/branch/master)
+[![NuGet](https://img.shields.io/nuget/v/Invio.Extensions.Authentication.JwtBearer.svg)](https://www.nuget.org/packages/Invio.Extensions.Authentication.JwtBearer/)
+[![Coverage](https://codecov.io/gh/invio/Invio.Extensions.Authentication.JwtBearer/branch/master/graph/badge.svg)](https://codecov.io/gh/invio/Invio.Extensions.Authentication.JwtBearer)
+
 This library extends the functionality of Microsoft's base implementation of JWT bearer handling found in [`Microsoft.AspNetCore.Authentication.JwtBearer`](https://github.com/aspnet/Security/tree/master/src/Microsoft.AspNetCore.Authentication.JwtBearer). Currently, the only thing it adds is the ability to enable ["URI Query Parameter" authentication as described in RFC 6750](https://tools.ietf.org/html/rfc6750#section-2.3).
 
 ## Installation
