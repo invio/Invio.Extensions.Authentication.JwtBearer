@@ -13,6 +13,8 @@ nuget:
   disable_publish_on_pr: true
 build_script:
 - sh: ./build.sh
+after_build:
+- sh: ./package.sh
 test_script:
 - sh: ./test.sh
 after_test:
