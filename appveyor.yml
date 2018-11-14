@@ -1,0 +1,32 @@
+version: '{build}'
+image:
+  - Ubuntu
+pull_requests:
+  do_not_increment_build_number: true
+environment:
+  CODECOV_TOKEN:
+    secure: wlgdjLpMjrAvc9M1v4z4m8GI/+orgGNYkwu9fEDbOAVP5l+zvnCuO7ZdceIJ9x03
+branches:
+  only:
+  - master
+nuget:
+  disable_publish_on_pr: true
+build_script:
+- sh: ./build.sh
+test_script:
+- sh: ./test.sh
+after_test:
+- sh: curl https://codecov.io/bash -o codecov.sh
+- sh: chmod +x ./codecov.sh
+- sh: ./codecov.sh -f ./coverage/coverage.opencover.xml -X gcov -X coveragepy
+artifacts:
+- path: .\artifacts\**\*.nupkg
+  name: NuGet
+deploy:
+- provider: NuGet
+  name: production
+  api_key:
+    secure: AtF8rrNg8ifhOqr2zyheRR8a0OSzG/EkKqa1cYBJw54gRkn/atiUhX9+s5qt9vg7
+  on:
+    branch: master
+    appveyor_repo_tag: true

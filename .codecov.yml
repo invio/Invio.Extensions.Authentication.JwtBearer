@@ -1,0 +1,28 @@
+codecov:
+  branch: master # Default branch to show in GUI
+
+coverage:
+  precision: 2    # How many decimal places to display in the GUI
+  round: down     # How decimal points are rounded
+  range: 50...90  # Below 50% is 'Red', 50% to 90% is 'Yellow', 90%+ is 'Green'
+
+  status:
+    project:
+      default:
+        enabled: true
+        target: 80%            # 80% coverage expected for a 'success' in coverage
+        threshold: 3%          # Any given commit can drop 3% in total coverage
+        if_no_uploads: error   # If we didn't get a cover report, it's an error
+        if_not_found: success  # If there is no parent commit, that's OK.
+        if_ci_failed: error    # If our CI failed along the way, assume the
+                               # code coverage is in an erroneous state
+
+    patch:
+      default:
+        enabled: true
+        target: 80%            # 80% coverage expected for a 'success' in coverage
+        threshold: 3%          # Any given commit can drop 3% in total coverage
+        if_no_uploads: error   # If we didn't get a cover report, it's an error
+        if_not_found: success  # If there is no parent commit, that's OK.
+        if_ci_failed: error    # If our CI failed along the way, assume the
+                               # code coverage is in an erroneous state
