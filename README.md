@@ -30,26 +30,16 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 public void ConfigureServices(IServiceCollection services) {
     services
         .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(
-            options => {
-                var authentication = this.configuration.GetSection("Authentication");
+        .AddJwtBearer(options => options.TokenValidationParameters = /* ... */)
+}
 
-                options.TokenValidationParameters = new TokenValidationParameters {
-                    ValidIssuers = authentication["Issuer"],
-                    ValidAudience = authentication["ClientId"],
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(authentication["ClientSecret"])
-                    )
-                };
-            }
-        );
-
-    // ... other code omitted for brevity
+public void Configure(IApplicationBuilder app, IHostingEnvironment env) {
+    app.UseAuthentication();
+    app.UseMvc();
 }
 ```
 
-Once you install the package, you can add it to your [`JwtBearerOptions`](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authentication.jwtbearer.jwtbeareroptions) configuration by calling one of
-the [`JwtBearerOptionsExtensions.AddQueryStringAuthentication`](https://github.com/invio/Invio.Extensions.Authentication.JwtBearer/blob/master/src/Invio.Extensions.Authentication.JwtBearer/JwtBearerOptionsExtensions.cs) extension methods.
+Once you install the package, you can apply it to your [`JwtBearerOptions`](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authentication.jwtbearer.jwtbeareroptions) configuration by calling one of the [`AuthenticationBuilderExtensions.AddJwtBearerQueryStringAuthentication`](https://github.com/invio/Invio.Extensions.Authentication.JwtBearer/blob/master/src/Invio.Extensions.Authentication.JwtBearer/AuthenticationBuilderExtensions.cs) extension methods on the JWT Bearer's `AuthenticationBuilder` as well as applying the [`JwtBearerQueryStringMiddleware`](https://github.com/invio/Invio.Extensions.Authentication.JwtBearer/blob/master/src/Invio.Extensions.Authentication.JwtBearer/JwtBearerQueryStringMiddleware.cs) by calling the [`ApplicationBuilderExtensions.UseJwtBearerQueryString`](https://github.com/invio/Invio.Extensions.Authentication.JwtBearer/blob/master/src/Invio.Extensions.Authentication.JwtBearer/ApplicationBuilderExtensions.cs) extension method.
 
 ```cs
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -58,32 +48,33 @@ using Invio.Extensions.Authentication.JwtBearer;
 public void ConfigureServices(IServiceCollection services) {
     services
         .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(
-            options => {
-                var authentication = this.configuration.GetSection("Authentication");
+        .AddJwtBearer(options => options.TokenValidationParameters = /* ... */)
 
-                options.TokenValidationParameters = new TokenValidationParameters {
-                    ValidIssuers = authentication["Issuer"],
-                    ValidAudience = authentication["ClientId"],
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(authentication["ClientSecret"])
-                    )
-                };
-
-                // Adds "URI Query Parameters" authentication
-
-                options.AddQueryStringAuthentication();
-
-                // Alternatively:
-                //   options.AddQueryStringAuthentication("custom-parameter-name")
+        // This example shows the default options. You can set them to
+        // whatever you like or you can even leave out the lambda altogether.
+        .AddJwtBearerQueryStringAuthentication(
+            (JwtBearerQueryStringOptions options) => {
+                options.QueryStringParameterName = "access_token";
+                options.QueryStringBehavior = QueryStringBehaviors.Redact;
             }
-        );
+        );        
+}
 
-    // ... other code omitted for brevity
+public void Configure(IApplicationBuilder app, IHostingEnvironment env) {
+    app.UseAuthentication();
+    // This should come after authentication but before any logging middleware.
+    app.UseJwtBearerQueryString();
+    app.UseMvc();
 }
 ```
 
-Now you can call your endpoints using URI query parameter authentication. You can test it out like so with [curl](https://en.wikipedia.org/wiki/CURL), or some other tool of your choosing.
+### Configuring the ``
+
+By default, this will enable users to send their JWT bearer tokens using the `"access_token"` query string parameter, and the value of that token will be redacted via the middleware. The string `"(REDACTED)"` is put in the token's place before the [`HttpContext`](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.http.httpcontext) representing the user's web request is moved up the pipeline. For more information on how to configure this behavior, see the [`JwtBearerQueryStringOptions`](https://github.com/invio/Invio.Extensions.Authentication.JwtBearer/blob/master/src/Invio.Extensions.Authentication.JwtBearer/JwtBearerQueryStringOptions.cs).
+
+### Wrapping Up
+
+Now you can call your endpoints using URI query parameter authentication. You can test it out like so with [cURL](https://en.wikipedia.org/wiki/CURL), or some other tool of your choosing.
 
 ```
 curl -I https://api.example.com/resource?access_token=eyJhbGciOiJIUzI1NiJ9.e30.bEionjP7X5J_VkgbZPrgfmAbNskfY4eG97AIRGA5kGg
