@@ -8,6 +8,38 @@ namespace Invio.Extensions.Authentication.JwtBearer {
     [UnitTest]
     public sealed class RedactJwtBearerQueryStringBehaviorTests : JwtBearerQueryStringBehaviorBaseTests {
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void Apply_NullQueryStringParameterNameInOptions(string name) {
+
+            // Arrange
+
+            var behavior = this.CreateBehavior();
+
+            var context = new DefaultHttpContext();
+            var options = new JwtBearerQueryStringOptions { QueryStringParameterName = name };
+            context.Request.QueryString = new QueryString("?access_token=token");
+
+            // Act
+
+            var exception = Record.Exception(
+                () => behavior.Apply(context, options)
+            );
+
+            // Assert
+
+            Assert.IsType<ArgumentException>(exception);
+
+            Assert.Equal(
+                $"The 'QueryStringParameterName' property on the " +
+                $"'options' parameter cannot be null or whitespace." +
+                Environment.NewLine + $"Parameter name: options",
+                exception.Message
+            );
+        }
+
         [Fact]
         public void Apply_QueryStringNotPresent() {
 

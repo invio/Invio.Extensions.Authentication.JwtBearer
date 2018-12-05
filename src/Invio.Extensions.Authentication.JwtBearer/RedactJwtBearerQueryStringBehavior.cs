@@ -52,8 +52,22 @@ namespace Invio.Extensions.Authentication.JwtBearer {
             HttpContext context,
             JwtBearerQueryStringOptions options) {
 
+            if (String.IsNullOrWhiteSpace(options.QueryStringParameterName)) {
+                throw new ArgumentException(
+                    $"The '{nameof(JwtBearerQueryStringOptions.QueryStringParameterName)}' " +
+                    $"property on the '{nameof(options)}' parameter cannot be null or " +
+                    $"whitespace.",
+                    nameof(options)
+                );
+            }
+
             var request = context.Request;
-            var queryString = QueryHelpers.ParseNullableQuery(request.QueryString.ToString());
+
+            if (request.QueryString == null || request.QueryString == QueryString.Empty) {
+                return;
+            }
+
+            var queryString = QueryHelpers.ParseQuery(request.QueryString.Value);
             var parameterName = options.QueryStringParameterName;
 
             StringValues values;
