@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Invio.Xunit;
 using Microsoft.AspNetCore.Http;
 using Xunit;
@@ -43,6 +44,36 @@ namespace Invio.Extensions.Authentication.JwtBearer {
             // Assert
 
             Assert.IsType<ArgumentNullException>(exception);
+        }
+
+        public static IEnumerable<object[]> Apply_EmptyQueryStringIsIgnored_MemberData {
+            get {
+                yield return new object[] { null };
+                yield return new object[] { new QueryString("?") };
+                yield return new object[] { QueryString.Empty };
+                yield return new object[] { new DefaultHttpContext().Request.QueryString };
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(Apply_EmptyQueryStringIsIgnored_MemberData))]
+        public void Apply_EmptyQueryStringIsIgnored(QueryString original) {
+
+            // Arrange
+
+            var behavior = this.CreateBehavior();
+            var context = new DefaultHttpContext();
+            var options = new JwtBearerQueryStringOptions();
+
+            context.Request.QueryString = original;
+
+            // Act
+
+            behavior.Apply(context, options);
+
+            // Assert
+
+            Assert.Equal(original, context.Request.QueryString);
         }
 
         protected abstract IJwtBearerQueryStringBehavior CreateBehavior();
