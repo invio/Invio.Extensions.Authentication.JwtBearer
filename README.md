@@ -51,7 +51,7 @@ public void ConfigureServices(IServiceCollection services) {
         .AddJwtBearer(options => options.TokenValidationParameters = /* ... */)
 
         // This example shows the default options. You can set them to
-        // whatever you like or you can even leave out the lambda altogether.
+        // whatever you like or you can leave out the lambda altogether.
         .AddJwtBearerQueryStringAuthentication(
             (JwtBearerQueryStringOptions options) => {
                 options.QueryStringParameterName = "access_token";
@@ -68,9 +68,9 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env) {
 }
 ```
 
-### Configuring the ``
+### Configuring the [`JwtBearerQueryStringOptions`](https://github.com/invio/Invio.Extensions.Authentication.JwtBearer/blob/master/src/Invio.Extensions.Authentication.JwtBearer/JwtBearerQueryStringOptions.cs)
 
-By default, this will enable users to send their JWT bearer tokens using the `"access_token"` query string parameter, and the value of that token will be redacted via the middleware. The string `"(REDACTED)"` is put in the token's place before the [`HttpContext`](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.http.httpcontext) representing the user's web request is moved up the pipeline. For more information on how to configure this behavior, see the [`JwtBearerQueryStringOptions`](https://github.com/invio/Invio.Extensions.Authentication.JwtBearer/blob/master/src/Invio.Extensions.Authentication.JwtBearer/JwtBearerQueryStringOptions.cs).
+By default, this library enable users to send their JWT bearer tokens using the `"access_token"` query string parameter, and the value of that token will be redacted via the middleware. The string `"(REDACTED)"` is put in the token's place before the [`HttpContext`](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.http.httpcontext) representing the user's web request is moved up the pipeline. For more information on how to configure this behavior, see the [`JwtBearerQueryStringOptions`](https://github.com/invio/Invio.Extensions.Authentication.JwtBearer/blob/master/src/Invio.Extensions.Authentication.JwtBearer/JwtBearerQueryStringOptions.cs).
 
 ### Wrapping Up
 
